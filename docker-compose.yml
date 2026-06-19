@@ -1,0 +1,109 @@
+# Tidak memakai key `version:` (sudah deprecated di Compose v2 modern).
+#
+# Jaringan: SEMUA service ditaruh di network `internal` (bridge lokal Compose).
+# Tidak ada service yang melakukan request ke luar internet -> memenuhi syarat
+# "tanpa akses ke layanan eksternal publik" (Bab 10-11: keamanan jaringan lokal).
+#
+# Cara jalan:
+#   docker compose up --build                  -> jalankan semua service (1 worker)
+#   docker compose up --build --scale worker=3  -> jalankan 3 worker sekaligus
+#                                                   untuk demo konkurensi (Bab 8-9)
+
+services:
+  storage:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      # Named volume -> data Postgres tetap ada walau container dihapus & dibuat ulang.
+      - pg_data:/var/lib/postgresql/data
+      # Hanya dijalankan SEKALI saat volume masih kosong (init pertama).
+      - ./storage/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  broker:
+    image: redis:7-alpine
+    # --appendonly yes -> Redis menulis log perubahan ke disk (persistensi
+    # tambahan), supaya antrian event tidak hilang total kalau container restart.
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - broker_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  aggregator:
+    build: ./aggregator
+    image: uas-aggregator:latest
+    depends_on:
+      storage:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://user:pass@storage:5432/db
+      REDIS_URL: redis://broker:6379/0
+      STREAM_NAME: events_stream
+      CONSUMER_GROUP: workers
+    ports:
+      # Hanya port INI yang diexpose ke host, sekadar untuk akses demo
+      # dari browser/Postman di komputer lokal -- bukan ke publik/internet.
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import socket; socket.socket().connect((\"127.0.0.1\", 8080))'"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  worker:
+    build: ./worker
+    image: uas-worker:latest
+    depends_on:
+      storage:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://user:pass@storage:5432/db
+      REDIS_URL: redis://broker:6379/0
+      STREAM_NAME: events_stream
+      CONSUMER_GROUP: workers
+    networks: [internal]
+    # CATATAN: jalankan `docker compose up --scale worker=3` untuk benar-benar
+    # menjalankan 3 PROSES worker terpisah secara paralel (bukti konkurensi nyata,
+    # bukan cuma multi-thread dalam satu proses).
+
+  publisher:
+    build: ./publisher
+    image: uas-publisher:latest
+    depends_on:
+      aggregator:
+        condition: service_healthy
+    environment:
+      TARGET_URL: http://aggregator:8080/publish
+      TOTAL_EVENTS: "20000"
+      DUPLICATE_RATE: "0.3"
+      BATCH_SIZE: "200"
+      CONCURRENCY: "8"
+    networks: [internal]
+    # Publisher berjalan sekali (generate + kirim event), lalu exit -> restart: "no".
+    restart: "no"
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  pg_data:
+  broker_data:
