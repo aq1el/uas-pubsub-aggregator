@@ -41,7 +41,7 @@ Konsekuensinya, klien tidak langsung tahu kapan persis event selesai diproses
 stateless/replaceable — ini menyederhanakan recovery setelah crash, sejalan
 dengan tujuan ketahanan kegagalan pada sistem terdistribusi.
 
-*(Coulouris et al., 2012)*
+(Coulouris et al., 2012)
 
 ### T2 (Bab 2) — Kapan Memilih Arsitektur Publish–Subscribe dibanding Client–Server?
 
@@ -64,7 +64,7 @@ penambahan consumer baru (misalnya layanan analitik) tanpa mengubah kode
 publisher sama sekali — ini selaras dengan prinsip *extensibility* sistem
 terdistribusi.
 
-*(Coulouris et al., 2012)*
+(Coulouris et al., 2012)
 
 ### T3 (Bab 3) — At-least-once vs Exactly-once Delivery; Peran Idempotent Consumer
 
@@ -85,7 +85,7 @@ sebenarnya dicapai bukan di layer pengiriman, melainkan di layer pemrosesan
 (*effectively-once processing*), sebuah pendekatan praktis yang jauh lebih
 murah dibanding mencoba membangun protokol *exactly-once delivery* murni.
 
-*(Coulouris et al., 2012)*
+(Coulouris et al., 2012)
 
 ### T4 (Bab 4) — Skema Penamaan Topic dan Event_id (Unik, Collision-Resistant) untuk Dedup
 
@@ -105,7 +105,7 @@ terpusat. Skema ini langsung dipetakan menjadi `PRIMARY KEY (topic, event_id)`
 di tabel `processed_events`, sehingga mekanisme penamaan dan mekanisme dedup
 menjadi satu kesatuan: nama yang sama secara definisi berarti event yang sama.
 
-*(Coulouris et al., 2012)*
+(Coulouris et al., 2012)
 
 ### T5 (Bab 5) — Ordering Praktis (Timestamp + Monotonic Counter); Batasan dan Dampaknya
 
@@ -128,7 +128,7 @@ karena setiap entri bersifat independen (Bab 14 buku ini membahas *logical
 clock*/*vector clock* sebagai solusi penuh, namun di luar cakupan minimum
 tugas ini).
 
-*(Coulouris et al., 2012)*
+(Coulouris et al., 2012)
 
 ### T6 (Bab 6) — Failure Modes dan Mitigasi (Retry, Backoff, Durable Dedup Store, Crash Recovery)
 
@@ -150,7 +150,7 @@ broker benar-benar siap sebelum menerima trafik (mencegah *cascading failure*
 saat startup). Backoff sederhana diterapkan pada loop pembacaan Redis di
 worker (sleep 2 detik) bila terjadi error koneksi, mencegah *retry storm*.
 
-*(Coulouris et al., 2012)*
+(Coulouris et al., 2012)
 
 ### T7 (Bab 7) — Eventual Consistency pada Aggregator; Peran Idempotency + Dedup
 
@@ -171,7 +171,7 @@ yang sama "lewat" antrian, hasil akhirnya identik dengan jika event itu hanya
 dikirim sekali — inilah yang membuat *eventual consistency* di sistem ini
 tetap dapat diandalkan meski tanpa koordinasi terpusat.
 
-*(Coulouris et al., 2012)*
+(Coulouris et al., 2012)
 
 ### T8 (Bab 8) — Desain Transaksi: ACID, Isolation Level, dan Strategi Menghindari Lost-Update
 
@@ -198,7 +198,7 @@ READ COMMITTED cukup aman dan lebih murah dibanding SERIALIZABLE yang akan
 menambah overhead *retry-on-conflict* tanpa manfaat tambahan pada pola akses
 ini.
 
-*(Coulouris et al., 2012)*
+(Coulouris et al., 2012)
 
 ### T9 (Bab 9) — Kontrol Konkurensi: Locking/Unique Constraints/Upsert; Idempotent Write Pattern
 
@@ -222,7 +222,7 @@ menciptakan *single point of contention* baru yang membatasi skalabilitas
 horizontal worker — bertentangan dengan tujuan sistem terdistribusi yang ingin
 dicapai.
 
-*(Coulouris et al., 2012)*
+(Coulouris et al., 2012)
 
 ### T10 (Bab 10–13) — Orkestrasi Compose, Keamanan Jaringan Lokal, Persistensi, Observability
 
@@ -248,7 +248,7 @@ duplikat, dan uptime), ditambah logging terstruktur di setiap service
 (`PROCESSED`/`DUPLICATE` per event di worker) memberi visibilitas terhadap
 perilaku sistem tanpa perlu masuk ke database secara manual.
 
-*(Coulouris et al., 2012)*
+(Coulouris et al., 2012)
 
 ---
 
@@ -315,4 +315,11 @@ atau salinan teks `PASSED`]`
 
 ## 5. Referensi
 
-Coulouris, G., Dollimore, J., Kindberg, T., & Blair, G. (2012). *Distributed systems: Concepts and design* (5th ed.). Pearson Education.
+### Daftar Pustaka (Format APA Edisi ke-7)
+
+Coulouris, G. F., Dollimore, J., Kindberg, T., & Blair, G. (2012). *Distributed systems: Concepts and design* (5th ed.). Pearson Education.
+
+### Format Sitasi dalam Teks (APA 7th)
+
+Semua sitasi dalam laporan ini mengikuti format: `(Nama Belakang, Tahun)` merujuk ke daftar pustaka di atas.
+Karena tugas ini berfokus pada satu buku utama (Distributed Systems – Coulouris et al., edisi ke-5), semua poin teori T1–T10 bersumber dari buku tersebut kecuali ada catatan khusus.

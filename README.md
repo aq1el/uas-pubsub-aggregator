@@ -4,7 +4,19 @@ UAS Sistem Terdistribusi — Pub-Sub Log Aggregator dengan Idempotent Consumer,
 Deduplication, dan Transaksi/Kontrol Konkurensi. Stack: **Python (FastAPI) +
 Redis Streams (broker) + PostgreSQL (storage)**, dijalankan dengan **Docker Compose**.
 
-> 🎥 **Link video demo:** _\[ISI DENGAN LINK YOUTUBE UNLISTED/PUBLIC KAMU DI SINI\]_
+> 🎥 **Link video demo:** [ISI DENGAN LINK YOUTUBE UNLISTED/PUBLIC KAMU DI SINI]
+> 
+> ⏱️ **Durasi video: minimal 25 menit**
+> 
+> Checklist konten video (WAJIB ditampilkan):
+> - [ ] Arsitektur multi-service dan alasan desain
+> - [ ] Proses build dan jalankan `docker compose up --build`
+> - [ ] Publikasi 20.000 event dengan 30% duplikasi
+> - [ ] Bukti idempotency: event duplikat hanya tersimpan sekali
+> - [ ] Multi-worker (`--scale worker=3`) tanpa race condition
+> - [ ] `GET /stats` dan `GET /events` menunjukkan konsistensi
+> - [ ] Crash recovery: hapus container/data → jalankan ulang → data persisten
+> - [ ] Metrik throughput, latency, dan hasil statistik final
 
 ## 1. Arsitektur
 
